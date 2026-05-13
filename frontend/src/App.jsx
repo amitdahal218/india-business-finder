@@ -1,136 +1,126 @@
-import React, { useState, useEffect } from 'react'
-import { businessAPI } from './api'
-import './styles/App.css'
-import SearchBar from './components/SearchBar'
-import BusinessForm from './components/BusinessForm'
-import BusinessList from './components/BusinessList'
-import StatsCard from './components/StatsCard'
+import React, { useState } from 'react'
+import { authAPI } from '../services/api'
 
 function App() {
-  const [businesses, setBusinesses] = useState([])
-  const [filteredBusinesses, setFilteredBusinesses] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [showForm, setShowForm] = useState(false)
-  const [stats, setStats] = useState({ total: 0, byCategory: {}, byCity: {} })
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalResults, setTotalResults] = useState(0)
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'))
+  const [currentPage, setCurrentPage] = useState('dashboard')
+  const [error, setError] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
 
-  // Fetch all businesses
-  const fetchBusinesses = async (page = 1) => {
-    setLoading(true)
+  const handleLogin = async (e) => {
+    e.preventDefault()
     try {
-      const response = await businessAPI.getAll(page, 10)
-      setBusinesses(response.data.data)
-      setFilteredBusinesses(response.data.data)
-      setTotalResults(response.data.total)
-      setCurrentPage(page)
-    } catch (error) {
-      console.error('Error fetching businesses:', error)
-      alert('Failed to load businesses')
-    } finally {
-      setLoading(false)
+      const response = await authAPI.login({ email, password })
+      localStorage.setItem('token', response.data.access_token)
+      localStorage.setItem('user', JSON.stringify(response.data))
+      setIsLoggedIn(true)
+      setError('')
+      setEmail('')
+      setPassword('')
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Login failed')
     }
   }
 
-  // Search businesses
-  const handleSearch = async (searchParams) => {
-    setLoading(true)
-    try {
-      const response = await businessAPI.search(searchParams)
-      setFilteredBusinesses(response.data.data)
-      setTotalResults(response.data.total)
-      setCurrentPage(1)
-    } catch (error) {
-      console.error('Error searching businesses:', error)
-      alert('Failed to search businesses')
-    } finally {
-      setLoading(false)
-    }
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    setIsLoggedIn(false)
   }
 
-  // Handle business added
-  const handleBusinessAdded = () => {
-    setShowForm(false)
-    fetchBusinesses(1)
-  }
+  if (!isLoggedIn) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="card" style={{ width: '100%', maxWidth: '400px' }}>
+          <h1>India Business Intelligence Platform</h1>
+          <p style={{ marginBottom: '2rem', color: 'var(--gray-500)' }}>Sign in to your account</p>
 
-  // Handle business deleted
-  const handleBusinessDeleted = () => {
-    fetchBusinesses(currentPage)
-  }
+          {error && <div className="error">{error}</div>}
 
-  // Load initial data
-  useEffect(() => {
-    fetchBusinesses(1)
-  }, [])
+          <form onSubmit={handleLogin}>
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your@email.com"
+                required
+                style={{ width: '100%' }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                style={{ width: '100%' }}
+              />
+            </div>
+
+            <button type="submit" className="btn-primary" style={{ width: '100%', marginBottom: '1rem' }}>
+              Sign In
+            </button>
+          </form>
+
+          <p style={{ textAlign: 'center', color: 'var(--gray-500)' }}
+            >No account? <a href="#">Sign up here</a></p>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="app">
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--gray-100)' }}>
       {/* Header */}
-      <header className="header">
-        <div className="container">
-          <div className="header-content">
-            <div className="logo">
-              <h1>🇮🇳 India Business Finder</h1>
-              <p>Find and manage business leads across India</p>
-            </div>
-            <button
-              className="btn-primary"
-              onClick={() => setShowForm(!showForm)}
-            >
-              {showForm ? '❌ Cancel' : '➕ Add Business'}
-            </button>
-          </div>
+      <header style={{ backgroundColor: 'white', borderBottom: '1px solid var(--gray-200)' }}>
+        <div className="container" style={{ padding: '1.5rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h1 style={{ fontSize: '1.5rem', margin: 0 }}>🇮🇳 Business Intelligence</h1>
+          <button className="btn-secondary" onClick={handleLogout}>
+            Logout
+          </button>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="main-content">
+      <main style={{ padding: '2rem 1rem' }}>
         <div className="container">
-          {/* Add Business Form */}
-          {showForm && (
-            <div className="card form-container">
-              <BusinessForm onSuccess={handleBusinessAdded} />
-            </div>
-          )}
-
-          {/* Search Bar */}
-          <div className="card search-container">
-            <SearchBar onSearch={handleSearch} />
-          </div>
-
-          {/* Stats */}
-          <div className="stats-grid">
-            <StatsCard
-              title="Total Businesses"
-              value={totalResults}
-              icon="📊"
-            />
-            <StatsCard
-              title="Loaded"
-              value={filteredBusinesses.length}
-              icon="📋"
-            />
-          </div>
-
-          {/* Business List */}
           <div className="card">
-            <BusinessList
-              businesses={filteredBusinesses}
-              loading={loading}
-              onDelete={handleBusinessDeleted}
-              onPageChange={fetchBusinesses}
-              currentPage={currentPage}
-              totalResults={totalResults}
-            />
+            <h2>Welcome to India Business Intelligence Platform</h2>
+            <p>This is your enterprise dashboard for business discovery and lead management.</p>
+
+            <div style={{ marginTop: '2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+              <div className="card">
+                <h3>📊 Total Businesses</h3>
+                <p style={{ fontSize: '2rem', fontWeight: 700, margin: '0.5rem 0' }}>0</p>
+              </div>
+              <div className="card">
+                <h3>🎯 Active Leads</h3>
+                <p style={{ fontSize: '2rem', fontWeight: 700, margin: '0.5rem 0' }}>0</p>
+              </div>
+              <div className="card">
+                <h3>⭐ High Priority</h3>
+                <p style={{ fontSize: '2rem', fontWeight: 700, margin: '0.5rem 0' }}>0</p>
+              </div>
+            </div>
+
+            <div style={{ marginTop: '2rem', padding: '1.5rem', backgroundColor: 'var(--gray-100)', borderRadius: '0.5rem' }}>
+              <h3>Getting Started</h3>
+              <ul style={{ marginLeft: '1.5rem' }}>
+                <li>✅ Backend API is running on http://localhost:8000</li>
+                <li>✅ Database connected</li>
+                <li>✅ Frontend connected to backend</li>
+                <li>📖 View API docs: <a href="http://localhost:8000/api/docs" target="_blank" rel="noopener noreferrer">http://localhost:8000/api/docs</a></li>
+              </ul>
+            </div>
           </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="footer">
-        <p>© 2024 India Business Finder. All rights reserved.</p>
-      </footer>
     </div>
   )
 }

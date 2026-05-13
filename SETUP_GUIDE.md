@@ -1,357 +1,316 @@
-# Complete Setup Guide - India Business Finder 🇮🇳
+# Complete Project Setup Guide
 
-## Step 1: Prerequisites
+## Prerequisites
 
-Before you start, make sure you have installed:
+### Required Software
+- Python 3.9+
+- Node.js 18+
+- PostgreSQL 12+
+- Docker (optional, for containerized setup)
 
-### Windows, Mac, or Linux?
-
-**For Python (All Platforms):**
-- Download from: https://www.python.org/downloads/
-- Version: 3.9 or higher
-- During installation, CHECK "Add Python to PATH"
-
-**For Node.js (All Platforms):**
-- Download from: https://nodejs.org/
-- Version: 18 LTS or higher
-- This includes npm (Node Package Manager)
-
-### Verify Installation
-
-Open Terminal/Command Prompt and run:
-```bash
-python --version
-node --version
-npm --version
-git --version
-```
-
-You should see version numbers for all.
+### Installation Links
+- Python: https://www.python.org/downloads/
+- Node.js: https://nodejs.org/
+- PostgreSQL: https://www.postgresql.org/download/
+- Docker: https://www.docker.com/products/docker-desktop
 
 ---
 
-## Step 2: Clone Repository
+## Option 1: Quick Docker Setup (Recommended)
 
+### Step 1: Install Docker
+Download from https://www.docker.com/products/docker-desktop
+
+### Step 2: Clone Repository
 ```bash
-# Navigate to where you want the project
-cd Desktop  # or any folder
-
-# Clone the repository
 git clone https://github.com/amitdahal218/india-business-finder.git
-
-# Enter the project folder
 cd india-business-finder
 ```
 
+### Step 3: Setup Environment
+```bash
+cp backend/.env.example backend/.env
+```
+
+Edit `backend/.env` and add your API keys:
+```
+GOOGLE_MAPS_API_KEY=your_api_key
+OPENAI_API_KEY=your_api_key
+```
+
+### Step 4: Run with Docker
+```bash
+docker-compose up -d
+```
+
+This starts:
+- PostgreSQL (port 5432)
+- Redis (port 6379)
+- Backend API (port 8000)
+- Celery Worker
+- Celery Beat Scheduler
+
+### Step 5: Access Application
+```
+API: http://localhost:8000
+API Docs: http://localhost:8000/api/docs
+Frontend: http://localhost:5173 (after running frontend)
+```
+
 ---
 
-## Step 3: Backend Setup (Python + FastAPI)
+## Option 2: Manual Setup
 
-### 3.1 Create Virtual Environment
+### Backend Setup
 
-A virtual environment is a separate Python workspace for this project.
-
-**Windows:**
+#### Step 1: Create Virtual Environment
 ```bash
 cd backend
 python -m venv venv
-venv\Scripts\activate
-```
 
-**Mac/Linux:**
-```bash
-cd backend
-python3 -m venv venv
+# Windows
+venv\\Scripts\\activate
+
+# Mac/Linux
 source venv/bin/activate
 ```
 
-You should see `(venv)` at the start of your terminal line.
-
-### 3.2 Install Python Dependencies
-
+#### Step 2: Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-This installs:
-- **FastAPI** - Backend web framework
-- **SQLAlchemy** - Database ORM
-- **Pydantic** - Data validation
-- **Uvicorn** - ASGI server
-- **Python-dotenv** - Environment variables
-
-### 3.3 Setup Environment Variables
-
+#### Step 3: Setup Environment File
 ```bash
-# Create .env file from template
 cp .env.example .env
 ```
 
-Edit `.env` file:
+Edit `.env` with your configuration:
 ```
-DATABASE_URL=sqlite:///./business_finder.db
-GOOGLE_MAPS_API_KEY=your_api_key_here_later
-DEBUG=True
+DATABASE_URL=postgresql://user:password@localhost/india_business_intelligence
+REDIS_URL=redis://localhost:6379
+GOOGLE_MAPS_API_KEY=your_api_key
+OPENAI_API_KEY=your_api_key
 ```
 
-### 3.4 Initialize Database
-
+#### Step 4: Create Database
 ```bash
-# Go back to project root
-cd ..
-
-# Initialize the database
-python database/init_db.py
+# Make sure PostgreSQL is running
+# Create database
+psql -U postgres -c "CREATE DATABASE india_business_intelligence;"
 ```
 
-You should see: `Database initialized successfully!`
-
-### 3.5 Run Backend Server
-
+#### Step 5: Run Backend
 ```bash
-cd backend
 python run.py
 ```
 
 You should see:
 ```
-INFO:     Uvicorn running on http://127.0.0.1:8000
-INFO:     Application startup complete
+INFO:     Uvicorn running on http://0.0.0.0:8000
 ```
 
-✅ **Backend is running!** Keep this terminal open.
+### Frontend Setup
 
----
-
-## Step 4: Frontend Setup (React + Vite)
-
-### 4.1 Open New Terminal
-
-Don't close the backend terminal. Open a **new terminal window** and navigate to the project:
-
+#### Step 1: Install Node Dependencies
 ```bash
-cd india-business-finder
 cd frontend
-```
-
-### 4.2 Install Dependencies
-
-```bash
 npm install
 ```
 
-This installs:
-- **React** - UI library
-- **Vite** - Build tool and dev server
-- **Axios** - HTTP client for API calls
-- **Tailwind CSS** - Styling framework
-
-### 4.3 Run Development Server
-
+#### Step 2: Run Frontend
 ```bash
 npm run dev
 ```
 
 You should see:
 ```
-  VITE v4.x.x  ready in xxx ms
-  ➜  Local:   http://localhost:5173/
+LOCAL:   http://localhost:5173/
 ```
-
-✅ **Frontend is running!** Keep this terminal open too.
 
 ---
 
-## Step 5: Access the Application
+## Testing the Application
 
-Now you have 3 terminals open:
-
-1. **Backend** - http://localhost:8000
-2. **Frontend** - http://localhost:5173
-3. **API Docs** - http://localhost:8000/docs
-
-### Open in Your Browser:
-
-**Frontend Dashboard:**
-```
-http://localhost:5173
-```
-
-**API Documentation (Interactive):**
-```
-http://localhost:8000/docs
+### 1. Register a User
+```bash
+curl -X POST http://localhost:8000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "username": "testuser",
+    "password": "password123",
+    "full_name": "Test User"
+  }'
 ```
 
-You can test API endpoints here!
+### 2. Login
+```bash
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "password123"
+  }'
+```
+
+### 3. List Businesses
+```bash
+curl http://localhost:8000/api/businesses/
+```
+
+### 4. View API Documentation
+Open: http://localhost:8000/api/docs
 
 ---
 
-## Step 6: Test the MVP
+## Database Schema
 
-### 6.1 Add a Business (Using API Docs)
-
-1. Go to http://localhost:8000/docs
-2. Click on **POST /api/businesses**
-3. Click **"Try it out"**
-4. Enter this JSON in the request body:
-```json
-{
-  "name": "ABC Coaching Centre",
-  "category": "Coaching Centre",
-  "city": "Mumbai",
-  "state": "Maharashtra",
-  "address": "123 Main Street",
-  "phone": "+919876543210",
-  "email": "info@abccoaching.com",
-  "website": "https://abccoaching.com"
-}
-```
-5. Click **Execute**
-
-You should see a response with ID and timestamp.
-
-### 6.2 Search Businesses (Using API Docs)
-
-1. Go to http://localhost:8000/docs
-2. Click on **GET /api/businesses/search**
-3. Click **"Try it out"**
-4. Type in the search box:
-   - `category=Coaching Centre` OR
-   - `city=Mumbai` OR
-   - `name=ABC`
-5. Click **Execute**
-
-You should see results matching your search!
-
-### 6.3 Test Frontend Dashboard
-
-1. Go to http://localhost:5173
-2. You'll see the business dashboard
-3. Try the search functionality
-4. Add a business using the form
+### Tables Created Automatically
+1. **users** - User accounts
+2. **businesses** - All discovered businesses
+3. **leads** - Saved leads with AI scoring
+4. **interactions** - Communication logs
+5. **analytics** - Activity tracking
+6. **ai_insights** - AI-generated insights
+7. **notifications** - User alerts
+8. **audit_logs** - System audit trail
 
 ---
 
-## Step 7: Stop the Application
+## API Endpoints
 
-When you're done:
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user
 
-**Backend Terminal:**
-```
-Press Ctrl + C
-```
+### Businesses
+- `GET /api/businesses/` - List all businesses
+- `GET /api/businesses/{id}` - Get business details
 
-**Frontend Terminal:**
-```
-Press Ctrl + C
-```
+### Leads
+- `GET /api/leads/` - List user's leads
+- `POST /api/leads/` - Create new lead
+- `PUT /api/leads/{id}` - Update lead
+
+### Search
+- `GET /api/search/businesses` - Search with filters
+
+### Analytics
+- `GET /api/analytics/dashboard` - Get dashboard stats
+
+### AI Insights
+- `GET /api/ai/business/{id}` - Get AI insights
+
+### Admin
+- `GET /api/admin/users` - List all users (admin only)
 
 ---
 
 ## Troubleshooting
 
-### ❌ "ModuleNotFoundError: No module named 'fastapi'"
-**Solution:**
+### Port Already in Use
 ```bash
-cd backend
+# Change port in backend/app/main.py or use:
+uvicorn app.main:app --port 8001
+
+# For frontend:
+npm run dev -- --port 5174
+```
+
+### Database Connection Error
+```bash
+# Check PostgreSQL is running
+psql -U postgres -c "SELECT version();"
+
+# Check DATABASE_URL in .env
+```
+
+### Missing Dependencies
+```bash
+# Backend
+pip install --upgrade pip
 pip install -r requirements.txt
+
+# Frontend
+npm cache clean --force
+rm -rf node_modules
+npm install
 ```
 
-### ❌ "Port 8000 is already in use"
-**Solution:** Change the port in backend/run.py:
-```python
-uvicorn.run(app, host="0.0.0.0", port=8001)  # Changed to 8001
-```
-
-### ❌ "Port 5173 is already in use"
-**Solution:** Change the port in vite.config.js:
-```javascript
-server: {
-  port: 5174  // Changed to 5174
-}
-```
-
-### ❌ "npm command not found"
-**Solution:** Install Node.js from https://nodejs.org/
-
-### ❌ Database errors
-**Solution:** Delete the database and reinitialize:
+### Redis Connection Error
 ```bash
-rm backend/business_finder.db
-python database/init_db.py
+# Start Redis
+redis-server
+
+# Or with Docker
+docker run -d -p 6379:6379 redis
 ```
 
 ---
 
-## Terminal Setup Tips
-
-**Best Practice:** Use this layout
+## Environment Variables Explained
 
 ```
-┌─────────────────────┬─────────────────────┐
-│   Backend Terminal  │  Frontend Terminal  │
-│   (Port 8000)       │  (Port 5173)        │
-│                     │                     │
-│   Running...        │  Ready in xxx ms    │
-└─────────────────────┴─────────────────────┘
-```
+# Database
+DATABASE_URL          # PostgreSQL connection string
 
-**For Windows:** Use VSCode built-in terminal (split view)
-**For Mac/Linux:** Use iTerm2 or split terminal
+# Cache
+REDIS_URL             # Redis connection string
+
+# API Keys
+GOOGLE_MAPS_API_KEY   # Get from Google Cloud Console
+OPENAI_API_KEY        # Get from OpenAI Platform
+
+# Security
+SECRET_KEY            # Change to random string in production
+JWT_SECRET_KEY        # Change to random string in production
+
+# Email
+SMTP_HOST             # Gmail, SendGrid, etc.
+SMTP_USER             # Your email
+SMTP_PASSWORD         # App password
+
+# Application
+ENVIRONMENT           # development or production
+DEBUG                 # True or False
+LOG_LEVEL             # INFO, DEBUG, WARNING, ERROR
+```
 
 ---
 
 ## Next Steps
 
-✅ Complete all setup steps above
-
-✅ Test API endpoints at http://localhost:8000/docs
-
-✅ Add a business entry through the dashboard
-
-✅ Search for businesses
-
-✅ Explore the code structure
-
-✅ Start customizing for your needs
+1. ✅ Complete the setup above
+2. ✅ Test API at http://localhost:8000/api/docs
+3. ✅ Register a test user
+4. ✅ Explore the dashboard
+5. ✅ Add your API keys (Google Maps, OpenAI)
+6. ✅ Start discovering businesses
+7. ✅ Deploy to production
 
 ---
 
-## Key Commands Reference
+## Production Deployment
 
-```bash
-# Activate virtual environment (Windows)
-venv\Scripts\activate
-
-# Activate virtual environment (Mac/Linux)
-source venv/bin/activate
-
-# Install Python dependencies
-pip install -r requirements.txt
-
-# Run backend
-cd backend
-python run.py
-
-# Run frontend (new terminal)
-cd frontend
-npm run dev
-
-# Stop server
-Ctrl + C
-
-# Deactivate virtual environment
-deactivate
-```
+See `docs/DEPLOYMENT_GUIDE.md` for:
+- AWS deployment
+- GCP deployment
+- Docker deployment
+- SSL/TLS setup
+- Load balancing
+- Monitoring & logging
 
 ---
 
-## Need Help?
+## Support
 
-1. Check the error message carefully
-2. Google the error message
-3. Check Python/Node.js versions
-4. Delete dependencies and reinstall
-5. Create a GitHub issue on the repository
+For issues or questions:
+1. Check error logs
+2. Review API documentation
+3. Create a GitHub issue
+4. Contact support team
+
+---
 
 Happy coding! 🚀

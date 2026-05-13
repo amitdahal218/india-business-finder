@@ -1,116 +1,259 @@
-# India Business Finder 🇮🇳
+# India Business Intelligence Platform
 
-An AI-powered business research software to find and manage leads across India for translation, publishing, and educational services.
+> Enterprise AI-powered lead generation and business discovery system for India
 
-## Project Overview
+## 🚀 Features
 
-This project helps you:
-- 🔍 Search for coaching centres, publishers, authors, and educational organizations across India
-- 📍 Get accurate location data with Google Maps integration
-- 📋 Save and manage leads in a database
-- 🤖 Use AI to score and prioritize leads
-- 📊 Export data to Excel/CSV
-- 📱 Access via mobile-friendly dashboard
+### Core Capabilities
+- 🔍 **Business Discovery** - Automatic discovery from Google Maps API across all India
+- 🤖 **AI Intelligence** - Lead scoring, business analysis, smart recommendations
+- 📊 **Analytics Dashboard** - Real-time KPIs and insights
+- 🔄 **Automation** - Background jobs, scheduled reports, bulk operations
+- 🏢 **Enterprise Ready** - Multi-user, RBAC, audit logs, encrypted data
 
-## Tech Stack
+### Search & Discovery
+- Search by city, district, state, pincode
+- Auto-duplicate detection
+- Real-time location mapping
+- Batch processing
 
-- **Backend**: Python + FastAPI
-- **Frontend**: React + Vite + Tailwind CSS
-- **Database**: SQLite (development) / PostgreSQL (production)
-- **APIs**: Google Maps API
+### AI Features
+- Lead scoring (0-100)
+- Business summarization
+- Service prediction
+- Outreach automation
+- NLP analysis
 
-## Quick Start
+### Lead Management
+- CRM-style pipeline
+- Interaction tracking
+- Follow-up scheduling
+- Export capabilities
 
-### 1. Clone Repository
+## 🏗️ Architecture
+
+```
+Frontend (React + Vite)
+    ↓
+Backend API (FastAPI)
+    ↓
+Database (PostgreSQL)
+Cache (Redis)
+Job Queue (Celery)
+AI Services (OpenAI)
+External APIs (Google Maps)
+```
+
+## 📋 Tech Stack
+
+### Backend
+- **FastAPI** - Modern async web framework
+- **PostgreSQL** - Production database
+- **Redis** - Caching & session management
+- **Celery** - Background job processing
+- **SQLAlchemy** - ORM
+- **JWT** - Authentication
+
+### Frontend
+- **React 18** - UI framework
+- **Vite** - Build tool
+- **Tailwind CSS** - Styling
+- **Axios** - HTTP client
+
+### AI & Integrations
+- **OpenAI/Claude** - AI services
+- **Google Maps API** - Business discovery
+- **Email Service** - Notifications
+
+## 🚀 Quick Start
+
+### With Docker (Recommended)
 ```bash
 git clone https://github.com/amitdahal218/india-business-finder.git
 cd india-business-finder
+
+cp backend/.env.example backend/.env
+# Edit .env with your API keys
+
+docker-compose up -d
 ```
 
-### 2. Backend Setup
+### Manual Setup
 ```bash
+# Backend
 cd backend
 python -m venv venv
-# Windows: venv\Scripts\activate
-# Mac/Linux: source venv/bin/activate
+source venv/bin/activate  # or venv\Scripts\activate on Windows
 pip install -r requirements.txt
 python run.py
-```
 
-### 3. Frontend Setup (New Terminal)
-```bash
+# Frontend (new terminal)
 cd frontend
 npm install
 npm run dev
 ```
 
-### 4. Access Application
+### Access
+- **API**: http://localhost:8000
+- **Docs**: http://localhost:8000/api/docs
 - **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:8000
-- **API Docs**: http://localhost:8000/docs
 
-## Project Structure
+## 📚 Documentation
 
+- [SETUP_GUIDE.md](./SETUP_GUIDE.md) - Complete setup instructions
+- [docs/API_DOCUMENTATION.md](./docs/API_DOCUMENTATION.md) - API reference
+- [docs/DEPLOYMENT_GUIDE.md](./docs/DEPLOYMENT_GUIDE.md) - Production deployment
+
+## 🗄️ Database Schema
+
+8 main tables:
+1. **users** - User accounts with roles
+2. **businesses** - All discovered businesses
+3. **leads** - Managed leads with AI scoring
+4. **interactions** - Communication logs
+5. **analytics** - Activity tracking
+6. **ai_insights** - AI-generated analysis
+7. **notifications** - User alerts
+8. **audit_logs** - System audit trail
+
+## 🔐 Security
+
+✅ JWT authentication
+✅ Password hashing (bcrypt)
+✅ CORS protection
+✅ Rate limiting
+✅ SQL injection prevention
+✅ XSS protection
+✅ Audit logging
+✅ Role-based access control
+
+## 📊 Key Endpoints
+
+### Auth
+- `POST /api/auth/register` - Register user
+- `POST /api/auth/login` - Login user
+
+### Businesses
+- `GET /api/businesses/` - List businesses
+- `GET /api/businesses/{id}` - Get details
+
+### Leads
+- `GET /api/leads/` - List leads
+- `POST /api/leads/` - Create lead
+- `PUT /api/leads/{id}` - Update lead
+
+### Search
+- `GET /api/search/businesses` - Advanced search
+
+### Analytics
+- `GET /api/analytics/dashboard` - Dashboard stats
+
+### AI
+- `GET /api/ai/business/{id}` - AI insights
+
+## 🤖 AI Features
+
+### Lead Scoring
+Automatically scores leads 0-100 based on:
+- Business category
+- Rating & reviews
+- Online presence
+- Social media activity
+
+### Message Generation
+AI-generates personalized:
+- Email outreach
+- WhatsApp messages
+- LinkedIn messages
+
+### Business Analysis
+- Extract keywords
+- Identify services
+- Predict needs
+- Generate summaries
+
+## 📈 Sample Data
+
+Includes sample data for:
+- Coaching centres
+- Publishers
+- Schools & colleges
+- Language institutes
+- Printing presses
+
+## 🛠️ Development
+
+### Project Structure
 ```
 india-business-finder/
-├── backend/                 # Python FastAPI backend
+├── backend/
 │   ├── app/
-│   │   ├── main.py         # FastAPI app entry point
-│   │   ├── models.py       # Database models
-│   │   ├── database.py     # Database configuration
-│   │   ├── schemas.py      # Data validation schemas
-│   │   └── routes/
-│   │       └── businesses.py # Business search routes
-│   ├── requirements.txt     # Python dependencies
-│   ├── .env.example        # Environment variables template
-│   └── run.py              # Run the server
-├── frontend/                # React + Vite frontend
+│   │   ├── core/          # Config, security, dependencies
+│   │   ├── models/        # Database models
+│   │   ├── routes/        # API endpoints
+│   │   ├── ai/            # AI services
+│   │   ├── integrations/  # External APIs
+│   │   └── tasks/         # Celery tasks
+│   └── requirements.txt
+├── frontend/
 │   ├── src/
-│   │   ├── App.jsx         # Main app component
-│   │   ├── main.jsx        # React entry point
-│   │   ├── components/     # Reusable components
-│   │   ├── pages/          # Page components
-│   │   ├── styles/         # CSS files
-│   │   └── api.js          # API integration
-│   ├── package.json        # JavaScript dependencies
-│   ├── vite.config.js      # Vite configuration
-│   └── index.html          # HTML entry point
-├── database/
-│   ├── schema.sql          # Database schema
-│   └── init_db.py          # Database initialization
-├── SETUP_GUIDE.md          # Step-by-step setup
-└── README.md               # This file
+│   │   ├── pages/         # React pages
+│   │   ├── components/    # React components
+│   │   └── services/      # API client
+│   └── package.json
+└── docs/                   # Documentation
 ```
 
-## Features
+### Running Tests
+```bash
+cd backend
+pytest
+```
 
-### MVP (Phase 1) ✅
-- Basic business search (coaching centres, publishers, authors)
-- Manual data entry
-- Search by name and category
-- SQLite database
-- Simple dashboard
+## 🚀 Deployment
 
-### Phase 2
-- Google Maps API integration
-- Advanced search filters
-- Lead export to CSV
+### Docker
+```bash
+docker-compose up -d
+```
 
-### Phase 3
-- AI lead scoring
-- Email/WhatsApp message generation
-- Dark mode UI
-- Mobile responsive design
+### AWS/GCP
+See [DEPLOYMENT_GUIDE.md](./docs/DEPLOYMENT_GUIDE.md)
 
-## Documentation
+## 📝 Environment Setup
 
-- **[Setup Guide](./SETUP_GUIDE.md)** - Detailed step-by-step setup instructions
-- **[API Documentation](http://localhost:8000/docs)** - Interactive API docs (after running backend)
+```bash
+cp backend/.env.example backend/.env
+```
 
-## Contributing
+Required variables:
+- `DATABASE_URL` - PostgreSQL connection
+- `REDIS_URL` - Redis connection
+- `GOOGLE_MAPS_API_KEY` - Google Maps API key
+- `OPENAI_API_KEY` - OpenAI API key
+- `SECRET_KEY` - Random secret key
+- `JWT_SECRET_KEY` - Random JWT secret
 
-Feel free to submit issues and enhancement requests!
+## 🤝 Contributing
 
-## License
+Contributions welcome! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Commit changes
+4. Push to branch
+5. Create a Pull Request
 
-MIT License
+## 📄 License
+
+MIT License - See LICENSE file
+
+## 📞 Support
+
+For issues or questions:
+- Create a GitHub issue
+- Check documentation
+- Review API docs at http://localhost:8000/api/docs
+
+---
+
+**Built with ❤️ for Indian businesses** 🇮🇳
