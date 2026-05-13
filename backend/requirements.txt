@@ -1,0 +1,31 @@
+# FastAPI Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# Database
+SQLAlchemy==2.0.23
+alembic==1.12.1
+
+# Data Validation
+pydantic==2.4.2
+pydantic-settings==2.0.3
+
+# Environment Variables
+python-dotenv==1.0.0
+
+# Database Driver
+# SQLite (built-in)
+# For PostgreSQL, uncomment:
+# psycopg2-binary==2.9.9
+
+# CORS
+# For handling cross-origin requests
+# fastapi-cors==0.0.6
+
+# Utilities
+python-multipart==0.0.6
+
+# Optional: For API documentation
+python-jose==3.3.0
+passlib==1.7.4
+bcrypt==4.1.0
